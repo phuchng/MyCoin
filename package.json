@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "dev-peer": "cross-env HTTP_PORT=3002 P2P_PORT=5002 PEERS=ws://localhost:5001 nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,9 +24,11 @@
   "dependencies": {
     "crypto-js": "^4.2.0",
     "express": "^5.1.0",
-    "hex-to-binary": "^1.0.1"
+    "hex-to-binary": "^1.0.1",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
+    "cross-env": "^10.0.0",
     "nodemon": "^3.1.10"
   }
 }
