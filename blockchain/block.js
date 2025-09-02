@@ -1,12 +1,15 @@
+const hexToBinary = require('hex-to-binary');
 const SHA256 = require('crypto-js/sha256');
-const { GENESIS_DATA } = require('../config');
+const { GENESIS_DATA, MINE_RATE } = require('../config');
 
 class Block {
-  constructor({ timestamp, lastHash, hash, data }) {
+  constructor({ timestamp, lastHash, hash, data, nonce, difficulty }) {
     this.timestamp = timestamp;
     this.lastHash = lastHash;
     this.hash = hash;
     this.data = data;
+    this.nonce = nonce;
+    this.difficulty = difficulty;
   }
 
   static genesis() {
@@ -14,20 +17,44 @@ class Block {
   }
 
   static mineBlock({ lastBlock, data }) {
-    const timestamp = Date.now();
+    let hash, timestamp;
     const lastHash = lastBlock.hash;
-    const hash = Block.hash(timestamp, lastHash, data);
+    let { difficulty } = lastBlock;
+    let nonce = 0;
+
+    do {
+      nonce++;
+      timestamp = Date.now();
+      difficulty = Block.adjustDifficulty({ originalBlock: lastBlock, timestamp });
+      hash = Block.hash(timestamp, lastHash, data, nonce, difficulty);
+    } while (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty));
 
     return new this({
       timestamp,
       lastHash,
-      hash,
-      data
+      data,
+      difficulty,
+      nonce,
+      hash
     });
   }
 
-  static hash(timestamp, lastHash, data) {
-    return SHA256(JSON.stringify({ timestamp, lastHash, data })).toString();
+  static adjustDifficulty({ originalBlock, timestamp }) {
+    const { difficulty } = originalBlock;
+
+    if (difficulty < 1) return 1;
+
+    if ((timestamp - originalBlock.timestamp) > MINE_RATE) {
+      return difficulty - 1;
+    }
+
+    return difficulty + 1;
+  }
+
+  static hash(timestamp, lastHash, data, nonce, difficulty) {
+    return SHA256(
+      JSON.stringify({ timestamp, lastHash, data, nonce, difficulty })
+    ).toString();
   }
 }
 
