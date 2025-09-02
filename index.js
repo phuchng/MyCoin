@@ -4,6 +4,7 @@ const P2pServer = require('./p2p-server');
 const Wallet = require('./wallet');
 const TransactionPool = require('./wallet/transaction-pool');
 const TransactionMiner = require('./app/transaction-miner');
+const { FAUCET_AMOUNT } = require('./config');
 
 const app = express();
 const blockchain = new Blockchain();
@@ -30,7 +31,11 @@ app.post('/api/transact', (req, res) => {
     if (transaction) {
       transaction.update({ senderWallet: wallet, recipient, amount });
     } else {
-      transaction = wallet.createTransaction({ recipient, amount });
+      transaction = wallet.createTransaction({
+        recipient,
+        amount,
+        chain: blockchain.chain
+      });
     }
   } catch (error) {
     return res.status(400).json({ type: 'error', message: error.message });
@@ -42,9 +47,37 @@ app.post('/api/transact', (req, res) => {
   res.json({ type: 'success', transaction });
 });
 
+app.post('/api/faucet-transact', (req, res) => {
+  const { recipient } = req.body;
+  const amount = FAUCET_AMOUNT;
+  
+  try {
+    const transaction = wallet.createTransaction({
+      recipient,
+      amount,
+      chain: blockchain.chain
+    });
+
+    transactionPool.setTransaction(transaction);
+    p2pServer.broadcastTransaction(transaction);
+    
+    res.json({ type: 'success', transaction });
+  } catch (error) {
+    return res.status(400).json({ type: 'error', message: error.message });
+  }
+});
+
 app.get('/api/mine-transactions', (req, res) => {
   transactionMiner.mineTransactions();
   res.redirect('/api/blocks');
+});
+
+app.get('/api/wallet-info', (req, res) => {
+  const address = wallet.publicKey;
+  res.json({
+    address,
+    balance: Wallet.calculateBalance({ chain: blockchain.chain, address })
+  });
 });
 
 const HTTP_PORT = process.env.HTTP_PORT || 3001;
