@@ -1,5 +1,6 @@
 const Block = require('./block');
-const SHA256 = require('crypto-js/sha256');
+const Transaction = require('../wallet/transaction');
+const cryptoHash = require('../util/crypto-hash'); // Import trực tiếp cryptoHash
 
 class Blockchain {
   constructor() {
@@ -7,31 +8,36 @@ class Blockchain {
   }
 
   addBlock({ data }) {
-    const lastBlock = this.chain[this.chain.length - 1];
-    const newBlock = Block.mineBlock({ lastBlock, data });
+    const newBlock = Block.mineBlock({
+      lastBlock: this.chain[this.chain.length - 1],
+      data
+    });
     this.chain.push(newBlock);
   }
 
-  replaceChain(chain) {
+  replaceChain(chain, onSuccess) {
     if (chain.length <= this.chain.length) {
       console.error('The incoming chain must be longer');
       return;
     }
-
     if (!Blockchain.isValidChain(chain)) {
       console.error('The incoming chain must be valid');
       return;
     }
-
+    if (onSuccess) onSuccess();
     console.log('replacing chain with', chain);
     this.chain = chain;
+  }
+
+  validTransactionData({ chain }) {
+      // We will implement this in the future
+      return true;
   }
 
   static isValidChain(chain) {
     if (JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis())) {
       return false;
     }
-
     for (let i = 1; i < chain.length; i++) {
       const { timestamp, lastHash, hash, nonce, difficulty, data } = chain[i];
       const actualLastHash = chain[i - 1].hash;
@@ -39,15 +45,12 @@ class Blockchain {
 
       if (lastHash !== actualLastHash) return false;
 
-      const validatedHash = SHA256(
-        JSON.stringify({ timestamp, lastHash, data, nonce, difficulty })
-      ).toString();
+      const validatedHash = cryptoHash(timestamp, lastHash, data, nonce, difficulty);
 
       if (hash !== validatedHash) return false;
-      
+
       if (Math.abs(lastDifficulty - difficulty) > 1) return false;
     }
-
     return true;
   }
 }
