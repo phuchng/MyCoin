@@ -8,8 +8,9 @@ const MESSAGE_TYPES = {
 };
 
 class P2pServer {
-  constructor(blockchain) {
+  constructor(blockchain, transactionPool) {
     this.blockchain = blockchain;
+    this.transactionPool = transactionPool;
     this.sockets = [];
   }
 
@@ -29,7 +30,7 @@ class P2pServer {
       socket.on('open', () => this.connectSocket(socket));
     });
   }
-
+  
   connectSocket(socket) {
     this.sockets.push(socket);
     console.log('Socket connected');
@@ -49,7 +50,7 @@ class P2pServer {
           this.blockchain.replaceChain(data.chain);
           break;
         case MESSAGE_TYPES.transaction:
-          // We will implement this later
+          this.transactionPool.setTransaction(data.transaction);
           break;
       }
     });
@@ -64,6 +65,15 @@ class P2pServer {
 
   syncChains() {
     this.sockets.forEach(socket => this.sendChain(socket));
+  }
+
+  broadcastTransaction(transaction) {
+    this.sockets.forEach(socket => {
+      socket.send(JSON.stringify({
+        type: MESSAGE_TYPES.transaction,
+        transaction
+      }));
+    });
   }
 }
 

@@ -23,8 +23,10 @@
   "homepage": "https://github.com/phuchng/MyCoin#readme",
   "dependencies": {
     "crypto-js": "^4.2.0",
+    "elliptic": "^6.6.1",
     "express": "^5.1.0",
     "hex-to-binary": "^1.0.1",
+    "uuid": "^11.1.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {
