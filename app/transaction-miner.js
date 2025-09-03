@@ -8,17 +8,24 @@ class TransactionMiner {
     this.p2pServer = p2pServer;
   }
 
-  mineTransactions() {
-    const validTransactions = this.transactionPool.validTransactions();
+  async mineTransactions() {
+    const validTransactions = await this.transactionPool.validTransactions();
+
+    if (validTransactions.length === 0) {
+      console.log('No valid transactions to mine.');
+      return;
+    }
 
     const rewardTransaction = Transaction.rewardTransaction({ minerWallet: this.wallet });
     validTransactions.push(rewardTransaction);
 
-    this.blockchain.addBlock({ data: validTransactions });
+    await this.blockchain.addBlock({ data: validTransactions });
 
     this.p2pServer.syncChains();
 
-    this.transactionPool.clear();
+    await this.transactionPool.clear();
+
+    this.p2pServer.broadcastClearTransactions();
   }
 }
 

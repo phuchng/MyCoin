@@ -1,0 +1,41 @@
+services:
+  redis:
+    image: "redis:7-alpine"
+    container_name: mycoin-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  node1:
+    build: .
+    container_name: mycoin-node1
+    ports:
+      - "3001:3001"
+      - "5001:5001"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - HTTP_PORT=3001
+      - P2P_PORT=5001
+      - PEERS=
+      - FAUCET_PRIVATE_KEY=${FAUCET_PRIVATE_KEY}
+    depends_on:
+      - redis
+
+  node2:
+    build: .
+    container_name: mycoin-node2
+    ports:
+      - "3002:3002"
+      - "5002:5002"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - HTTP_PORT=3002
+      - P2P_PORT=5002
+      - PEERS=ws://mycoin-node1:5001
+      - FAUCET_PRIVATE_KEY=${FAUCET_PRIVATE_KEY}
+    depends_on:
+      - node1
+
+volumes:
+  redis-data:

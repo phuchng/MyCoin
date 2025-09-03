@@ -37,23 +37,23 @@ class P2pServer {
   }
 
   messageHandler(socket) {
-    socket.on('message', message => {
+    socket.on('message', async (message) => {
       const data = JSON.parse(message);
       console.log('Received data from peer:', data.type);
 
       switch (data.type) {
         case MESSAGE_TYPES.chain:
-          this.blockchain.replaceChain(data.chain, () => {
-            this.transactionPool.clearBlockchainTransactions({
+          await this.blockchain.replaceChain(data.chain, async () => {
+            await this.transactionPool.clearBlockchainTransactions({
               chain: data.chain
             });
           });
           break;
         case MESSAGE_TYPES.transaction:
-          this.transactionPool.setTransaction(data.transaction);
+          await this.transactionPool.setTransaction(data.transaction);
           break;
         case MESSAGE_TYPES.clear_transactions:
-          this.transactionPool.clear();
+          await this.transactionPool.clear();
           break;
       }
     });

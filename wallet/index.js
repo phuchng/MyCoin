@@ -3,9 +3,9 @@ const { INITIAL_BALANCE } = require('../config');
 const { ec, cryptoHash } = require('../util');
 
 class Wallet {
-  constructor() {
+  constructor({ privateKey } = {}) {
     this.balance = INITIAL_BALANCE;
-    this.keyPair = ec.genKeyPair();
+    this.keyPair = privateKey ? ec.keyFromPrivate(privateKey, 'hex') : ec.genKeyPair();
     this.publicKey = this.keyPair.getPublic().encode('hex');
   }
 
@@ -32,7 +32,7 @@ class Wallet {
     let hasConductedTransaction = false;
     let outputsTotal = 0;
 
-    for (let i = chain.length - 1; i > 0; i--) {
+    for (let i = chain.length - 1; i >= 0; i--) {
       const block = chain[i];
 
       for (let transaction of block.data) {
