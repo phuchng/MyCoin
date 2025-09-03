@@ -12,6 +12,7 @@ function Transaction({ transaction }) {
   const recipients = Object.keys(outputMap);
 
   const isReward = input.address === '*authorized-reward*';
+  const isGenesis = input.address === '*genesis-block-pre-mine*';
 
   return (
     <Card className="m-0 border-0">
@@ -24,6 +25,8 @@ function Transaction({ transaction }) {
             <strong>From:</strong>{' '}
             {isReward ? (
               <span className="text-success">_Mining Reward_</span>
+            ) : isGenesis ? (
+              <span className="text-info">_Genesis Block Pre-mine_</span>
             ) : (
               <AddressLink address={input.address} />
             )}
