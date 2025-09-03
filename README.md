@@ -10,6 +10,7 @@ This project builds a functional Proof-of-Work blockchain system named MyCoin. I
 - A REST API for interacting with the blockchain.
 - A faucet for distributing initial coins.
 - Docker-based environment for easy setup and deployment.
+- A React-based web client for a user-friendly wallet experience.
 
 ## Getting Started
 
@@ -27,29 +28,59 @@ The setup process has been fully automated.
     cd MyCoin
     ```
 
-2.  **Install Dependencies**
+2.  **Install Root Dependencies**
     ```bash
     npm install
     ```
 
 3.  **Run the Application with Docker**
 
-    Use the new `docker:up` script to handle everything from environment setup to starting the containers.
+    Use the `docker:up` script to handle everything from environment setup to starting the containers.
     ```bash
     npm run docker:up
     ```
     This command will:
-    - **On first run:** Automatically execute a setup script. This script generates a `.env` file populated with unique, secure private keys for the faucet wallet (used by `node1`) and a separate miner wallet (used by `node2`).
+    - **On first run:** Automatically execute a setup script to generate a `.env` file with unique private keys.
+    - Install dependencies for both the backend and the frontend client.
+    - Build the React client for production.
     - Build the Docker image for the Node.js application.
-    - Start a Redis container for data persistence.
-    - Start two blockchain nodes:
-        - `node1` (Faucet Node) accessible at `http://localhost:3001`
-        - `node2` (Miner Node) accessible at `http://localhost:3002`
+    - Start a Redis container and two blockchain nodes.
+        - `node1` (Faucet Node) serves the backend API and the frontend client at `http://localhost:3001`
+        - `node2` (Miner Node) is available at `http://localhost:3002`
 
     To stop the application, press `Ctrl+C` and then run:
     ```bash
     npm run docker:down
     ```
+
+## Frontend Client (Development)
+
+For a better development experience with hot-reloading, you can run the client separately.
+
+1.  Start the backend nodes first (in the root directory):
+    ```bash
+    npm run docker:up
+    ```
+2.  In a new terminal, navigate to the `client` directory:
+    ```bash
+    cd client
+    ```
+3.  Install client-specific dependencies:
+    ```bash
+    npm install
+    ```
+4.  Run the Vite development server:
+    ```bash
+    npm run dev
+    ```
+    The client will be available at `http://localhost:5173` and will automatically proxy API requests to the backend.
+
+### Client Features
+
+- **Create Wallet:** Generate a new MyCoin wallet using either a 12-word mnemonic phrase or an encrypted keystore file.
+- **Access Wallet:** Securely access your wallet using your private key, mnemonic phrase, or keystore file.
+- **(Coming Soon)** Wallet dashboard to view balance and send coins.
+- **(Coming Soon)** Blockchain explorer to view transactions and blocks.
 
 ## API Usage
 

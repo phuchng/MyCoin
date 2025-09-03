@@ -1,15 +1,25 @@
+FROM node:18-alpine AS client-builder
+
+WORKDIR /app
+
+COPY client/package*.json ./client/
+RUN npm install --prefix client
+
+COPY client/ ./client/
+
+RUN npm run build --prefix client
+
 FROM node:18-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-
-# Using npm ci for faster, more reliable builds in CI/CD environments
-RUN npm ci
+RUN npm ci --only=production
 
 COPY . .
 
-# Expose both the HTTP and P2P ports
+COPY --from=client-builder /app/client/dist ./client/dist
+
 EXPOSE 3001 5001
 
 CMD ["npm", "start"]
