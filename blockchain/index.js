@@ -83,23 +83,46 @@ class Blockchain {
   }
 
   static validTransactionData({ block, chain }) {
-    for (let transaction of block.data) {
+    let rewardTransactionCount = 0;
+    const transactionSet = new Set();
+
+    for (const transaction of block.data) {
+      if (transactionSet.has(transaction.id)) {
+        console.error('Duplicate transaction found in block');
+        return false;
+      }
+      transactionSet.add(transaction.id);
+
       if (transaction.input.address === REWARD_INPUT.address) {
-        if (Object.values(transaction.outputMap).length !== 1 || 
-            Object.values(transaction.outputMap)[0] !== MINING_REWARD) {
+        rewardTransactionCount++;
+
+        if (rewardTransactionCount > 1) {
+          console.error('Miner rewards exceed limit');
+          return false;
+        }
+
+        if (Object.values(transaction.outputMap).length !== 1) {
+          console.error('Miner reward has incorrect number of outputs');
+          return false;
+        }
+
+        if (Object.values(transaction.outputMap)[0] !== MINING_REWARD) {
+          console.error('Miner reward amount is incorrect');
           return false;
         }
       } else {
         if (!Transaction.validTransaction(transaction)) {
+          console.error('Invalid transaction data');
           return false;
         }
-        
+
         const trueBalance = Wallet.calculateBalance({
           chain: chain.slice(0, chain.indexOf(block)),
           address: transaction.input.address
         });
-
+        
         if (transaction.input.amount !== trueBalance) {
+          console.error(`Invalid transaction amount. Stated: ${transaction.input.amount}, Actual: ${trueBalance} for address ${transaction.input.address}`);
           return false;
         }
       }

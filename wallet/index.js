@@ -29,32 +29,29 @@ class Wallet {
   }
 
   static calculateBalance({ chain, address }) {
-    let hasConductedTransaction = false;
-    let outputsTotal = 0;
-
-    for (let i = chain.length - 1; i >= 0; i--) {
+    // Check if the address has ever sent a transaction by iterating backwards.
+    // The first transaction found from the address is its most recent one.
+    for (let i = chain.length - 1; i > 0; i--) {
       const block = chain[i];
-
       for (let transaction of block.data) {
         if (transaction.input.address === address) {
-          hasConductedTransaction = true;
+          // The balance is the "change" output sent back to the sender's address.
+          return transaction.outputMap[address];
         }
-
-        const addressOutput = transaction.outputMap[address];
-
-        if (addressOutput) {
-          outputsTotal = outputsTotal + addressOutput;
-        }
-      }
-
-      if (hasConductedTransaction) {
-        break;
       }
     }
 
-    return hasConductedTransaction
-      ? outputsTotal
-      : INITIAL_BALANCE + outputsTotal;
+    // If the address has never sent a transaction, its balance is the sum of all outputs it has received.
+    let outputsTotal = 0;
+    for (const block of chain) {
+      for (const transaction of block.data) {
+        if (transaction.outputMap[address]) {
+          outputsTotal += transaction.outputMap[address];
+        }
+      }
+    }
+
+    return INITIAL_BALANCE + outputsTotal;
   }
 }
 

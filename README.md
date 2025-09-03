@@ -77,13 +77,17 @@ This project builds a functional Proof-of-Work blockchain system named MyCoin. I
 
 Once running, you can interact with the API endpoints. For example, using `curl` or Postman:
 
+- **Get public node info (faucet address, etc.):** `GET http://localhost:3001/api/info`
+- **Create a new wallet:** `GET http://localhost:3001/api/wallet/create`
 - **Get all blocks:** `GET http://localhost:3001/api/blocks`
 - **Get transaction pool:** `GET http://localhost:3001/api/transactions`
 - **Mine new transactions:** `GET http://localhost:3001/api/mine-transactions`
 - **Get faucet/miner info:** `GET http://localhost:3001/api/miner-info`
+- **Get info for a specific address:** `GET http://localhost:3001/api/address/<wallet-public-key>`
 - **Use the faucet:** `POST http://localhost:3001/api/faucet-transact` with JSON body:
   ```json
   {
     "recipient": "some-other-wallet-public-key"
   }
   ```
+- **Submit a transaction (client-signed):** `POST http://localhost:3001/api/transact` with a full transaction object in the JSON body.

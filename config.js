@@ -1,5 +1,3 @@
-const { v1: uuidv1 } = require('uuid');
-
 const MINE_RATE = 1000; // 1 giây
 const INITIAL_DIFFICULTY = 3;
 const MINING_REWARD = 50;
@@ -20,7 +18,7 @@ const GENESIS_DATA = {
   nonce: 0,
   data: [
     {
-      id: uuidv1(),
+      id: 'genesis-transaction-1',
       outputMap: {
         [FAUCET_PUBLIC_KEY]: FAUCET_INITIAL_SUPPLY
       },

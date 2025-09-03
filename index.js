@@ -8,7 +8,7 @@ const Wallet = require('./wallet');
 const TransactionPool = require('./wallet/transaction-pool');
 const TransactionMiner = require('./app/transaction-miner');
 const Transaction = require('./wallet/transaction');
-const { FAUCET_AMOUNT, REWARD_INPUT } = require('./config');
+const { FAUCET_AMOUNT, REWARD_INPUT, FAUCET_PUBLIC_KEY } = require('./config');
 
 const app = express();
 
@@ -27,6 +27,13 @@ const BLOCKS_PER_PAGE = 10;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client/dist')));
+
+app.get('/api/info', (req, res) => {
+  res.json({
+    faucetAddress: FAUCET_PUBLIC_KEY,
+    chainLength: blockchain.chain.length
+  });
+});
 
 app.get('/api/blocks', (req, res) => {
   res.json(blockchain.chain);
@@ -67,15 +74,6 @@ app.post('/api/transact', async (req, res) => {
   try {
     if (!Transaction.validTransaction(transaction)) {
       throw new Error('Invalid transaction signature or output.');
-    }
-
-    const balance = Wallet.calculateBalance({
-      chain: blockchain.chain,
-      address: transaction.input.address
-    });
-
-    if (transaction.input.amount !== balance) {
-      throw new Error(`Invalid sender balance. Stated: ${transaction.input.amount}, Actual: ${balance}`);
     }
 
     const transactionMap = await transactionPool.getTransactionMap();
@@ -122,6 +120,15 @@ app.get('/api/miner-info', (req, res) => {
     res.json({
       address,
       balance: Wallet.calculateBalance({ chain: blockchain.chain, address })
+    });
+});
+
+app.get('/api/wallet/create', (req, res) => {
+    const wallet = new Wallet();
+    res.json({
+        privateKey: wallet.keyPair.getPrivate('hex'),
+        publicKey: wallet.publicKey,
+        balance: wallet.balance
     });
 });
 
