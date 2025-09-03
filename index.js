@@ -20,6 +20,7 @@ const redisClient = redis.createClient({ url: REDIS_URL });
 let blockchain;
 let transactionPool;
 let minerWallet;
+let faucetWallet;
 let p2pServer;
 let transactionMiner;
 
@@ -95,7 +96,7 @@ app.post('/api/faucet-transact', async (req, res) => {
   const amount = FAUCET_AMOUNT;
   
   try {
-    const transaction = minerWallet.createTransaction({
+    const transaction = faucetWallet.createTransaction({
       recipient,
       amount,
       chain: blockchain.chain
@@ -173,13 +174,30 @@ const main = async () => {
   await redisClient.connect();
   console.log('Connected to Redis.');
 
+  const minerPrivateKey = process.env.PRIVATE_KEY;
+  const faucetPrivateKey = process.env.FAUCET_PRIVATE_KEY;
+
+  if (!minerPrivateKey) {
+    throw new Error('A miner private key is required. Check the PRIVATE_KEY environment variable.');
+  }
+  if (!faucetPrivateKey) {
+    throw new Error('The faucet private key is required. Check the FAUCET_PRIVATE_KEY environment variable.');
+  }
+
   blockchain = await Blockchain.create({ redisClient });
   transactionPool = new TransactionPool({ redisClient });
-  minerWallet = new Wallet({ privateKey: process.env.FAUCET_PRIVATE_KEY });
+
+  minerWallet = new Wallet({ privateKey: minerPrivateKey });
+  faucetWallet = new Wallet({ privateKey: faucetPrivateKey });
+
   p2pServer = new P2pServer(blockchain, transactionPool);
   transactionMiner = new TransactionMiner({ blockchain, transactionPool, wallet: minerWallet, p2pServer });
 
-  console.log(`Faucet/Miner Wallet Address: ${minerWallet.publicKey}`);
+  console.log(`Miner Wallet Address: ${minerWallet.publicKey}`);
+  if (minerWallet.publicKey === FAUCET_PUBLIC_KEY) {
+    console.log('(This node uses the faucet wallet for mining)');
+  }
+  console.log(`Faucet transactions enabled with address: ${faucetWallet.publicKey}`);
 
   app.listen(HTTP_PORT, () => {
     console.log(`Server listening on port ${HTTP_PORT}`);

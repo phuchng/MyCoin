@@ -1,9 +1,16 @@
+require('dotenv').config();
 const MINE_RATE = 1000; // 1 giây
 const INITIAL_DIFFICULTY = 3;
 const MINING_REWARD = 50;
 const FAUCET_AMOUNT = 100;
 
-const FAUCET_PUBLIC_KEY = '049c241d8c7b5f9d72afc2708f0f6e59b480d4e713cc3c5a59290930e31c8879994d11be54f04dd31973987147072d99a47b2ca8e4a0bb40f02b9d49725372a014';
+const FAUCET_PUBLIC_KEY = process.env.FAUCET_PUBLIC_KEY;
+if (!FAUCET_PUBLIC_KEY) {
+  console.error('FAUCET_PUBLIC_KEY is not defined. Please ensure your .env file is set up correctly.');
+  console.error('Run `npm run setup` to generate a .env file and try again.');
+  process.exit(1);
+}
+
 const FAUCET_INITIAL_SUPPLY = 1000000;
 
 const GENESIS_INPUT = {

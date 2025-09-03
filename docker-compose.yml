@@ -18,7 +18,9 @@ services:
       - HTTP_PORT=3001
       - P2P_PORT=5001
       - PEERS=
+      - PRIVATE_KEY=${FAUCET_PRIVATE_KEY}
       - FAUCET_PRIVATE_KEY=${FAUCET_PRIVATE_KEY}
+      - FAUCET_PUBLIC_KEY=${FAUCET_PUBLIC_KEY}
     depends_on:
       - redis
 
@@ -33,7 +35,9 @@ services:
       - HTTP_PORT=3002
       - P2P_PORT=5002
       - PEERS=ws://mycoin-node1:5001
+      - PRIVATE_KEY=${NODE2_PRIVATE_KEY}
       - FAUCET_PRIVATE_KEY=${FAUCET_PRIVATE_KEY}
+      - FAUCET_PUBLIC_KEY=${FAUCET_PUBLIC_KEY}
     depends_on:
       - node1
 
