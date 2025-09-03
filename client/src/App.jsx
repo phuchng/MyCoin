@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import CreateWallet from './pages/CreateWallet';
 import AccessWallet from './pages/AccessWallet';
 import Dashboard from './pages/Dashboard';
+import Explorer from './pages/Explorer';
+import AddressDetail from './pages/AddressDetail';
 import { WalletContext } from './WalletContext';
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
           <Route index element={<Home />} />
           <Route path="create-wallet" element={<CreateWallet />} />
           <Route path="access-wallet" element={<AccessWallet />} />
+          <Route path="explorer" element={<Explorer />} />
+          <Route path="address/:address" element={<AddressDetail />} />
           <Route 
             path="wallet" 
             element={wallet ? <Dashboard /> : <Navigate to="/access-wallet" />} 

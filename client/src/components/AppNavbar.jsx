@@ -19,6 +19,7 @@ function AppNavbar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
+            <Nav.Link as={Link} to="/explorer">Explorer</Nav.Link>
             {wallet && <Nav.Link as={Link} to="/wallet">Dashboard</Nav.Link>}
           </Nav>
           <Nav>
