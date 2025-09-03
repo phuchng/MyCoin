@@ -14,9 +14,9 @@ function Transaction({ transaction }) {
   const isReward = input.address === '*authorized-reward*';
 
   return (
-    <Card className="mb-3">
-      <Card.Header className="py-2">
-        <small className="text-muted">Tx ID: {id}</small>
+    <Card className="m-0 border-0">
+      <Card.Header className="py-2 bg-light border-bottom">
+        <small className="text-muted">Tx ID: {id.substring(0, 15)}...</small>
       </Card.Header>
       <Card.Body className="py-2">
         <div className="row">
