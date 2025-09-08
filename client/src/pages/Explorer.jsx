@@ -77,11 +77,11 @@ function Explorer() {
       <h2>Blockchain Explorer</h2>
       <Card className="mb-4">
         <Card.Body>
-          <Card.Title>Search Address</Card.Title>
+          <Card.Title>Search by Public Key</Card.Title>
           <Form onSubmit={handleSearch}>
             <InputGroup>
               <Form.Control 
-                placeholder="Enter a wallet address" 
+                placeholder="Enter a public key" 
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
               />
@@ -112,7 +112,7 @@ function Explorer() {
           {!loading && blocks.length === 0 && !error && <p>No blocks found.</p>}
         </div>
         <div className="col-lg-4">
-          <h4>Known Addresses</h4>
+          <h4>Known Public Keys</h4>
           {knownAddresses.length > 0 ? (
             <ListGroup>
               {knownAddresses.slice(0, 10).map(address => (

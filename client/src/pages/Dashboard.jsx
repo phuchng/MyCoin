@@ -1,7 +1,6 @@
 import { useContext, useState, useEffect, useCallback } from 'react';
 import { WalletContext } from '../WalletContext';
 import { Card, Form, Button, InputGroup, Row, Col, Spinner, Alert, ListGroup } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import Transaction from '../components/Transaction';
 import cryptoHash from '../util/crypto-hash';
 import { ec as EC } from 'elliptic';
@@ -31,7 +30,7 @@ function Dashboard() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/address/${wallet.address}`);
+      const res = await fetch(`/api/address/${wallet.publicKey.substring(2)}`);
       if (!res.ok) throw new Error('Failed to fetch wallet data.');
       const data = await res.json();
       setBalance(data.balance);
@@ -62,16 +61,18 @@ function Dashboard() {
 
     try {
       // Fetch the latest balance to construct the transaction
-      const balanceRes = await fetch(`/api/address/${wallet.address}`);
+      const balanceRes = await fetch(`/api/address/${wallet.publicKey.substring(2)}`);
       const { balance: currentBalance } = await balanceRes.json();
       
       if (parsedAmount > currentBalance) {
         throw new Error('Amount exceeds balance.');
       }
       
+      const senderPublicKey = wallet.publicKey.substring(2);
+
       const outputMap = {
         [recipient]: parsedAmount,
-        [wallet.address]: currentBalance - parsedAmount
+        [senderPublicKey]: currentBalance - parsedAmount
       };
 
       const keyPair = ec.keyFromPrivate(wallet.privateKey.substring(2), 'hex');
@@ -83,7 +84,7 @@ function Dashboard() {
         input: {
           timestamp: Date.now(),
           amount: currentBalance,
-          address: wallet.address,
+          address: senderPublicKey,
           signature
         }
       };
@@ -118,7 +119,7 @@ function Dashboard() {
       const res = await fetch('/api/faucet-transact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipient: wallet.address })
+        body: JSON.stringify({ recipient: wallet.publicKey.substring(2) })
       });
       const result = await res.json();
       if (result.type === 'error') throw new Error(result.message);
@@ -159,7 +160,7 @@ function Dashboard() {
           <Card className="mb-4">
             <Card.Header as="h5">Wallet Overview</Card.Header>
             <Card.Body>
-              <p style={{ wordBreak: 'break-all' }}><strong>Address:</strong> {wallet.address}</p>
+              <p style={{ wordBreak: 'break-all' }}><strong>Public Key:</strong> {wallet.publicKey.substring(2)}</p>
               <h4><strong>Balance:</strong> <span className="text-success">{balance} MyCoin</span></h4>
               <Button variant="outline-secondary" size="sm" onClick={fetchWalletData}>Refresh</Button>
             </Card.Body>
@@ -174,10 +175,10 @@ function Dashboard() {
             <Card.Body>
               <Form onSubmit={handleSend}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Recipient Address</Form.Label>
+                  <Form.Label>Recipient Public Key</Form.Label>
                   <Form.Control 
                     type="text" 
-                    placeholder="Enter address" 
+                    placeholder="Enter recipient's full public key" 
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
                     required

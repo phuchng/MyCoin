@@ -17,7 +17,7 @@ function AddressDetail() {
       try {
         const res = await fetch(`/api/address/${address}`);
         if (!res.ok) {
-          throw new Error('Address not found or error fetching data.');
+          throw new Error('Public key not found or error fetching data.');
         }
         const addressData = await res.json();
         setData(addressData);
@@ -32,7 +32,7 @@ function AddressDetail() {
 
   return (
     <div className="wallet-container">
-      <h2>Address Details</h2>
+      <h2>Public Key Details</h2>
       {loading && <div className="text-center my-4"><Spinner animation="border" variant="success" /></div>}
       {error && <Alert variant="danger">{error}</Alert>}
       {data && (
@@ -40,7 +40,7 @@ function AddressDetail() {
           <Card className="mb-4">
             <Card.Body>
               <Card.Title>Summary</Card.Title>
-              <p style={{wordBreak: 'break-all'}}><strong>Address:</strong> {data.address}</p>
+              <p style={{wordBreak: 'break-all'}}><strong>Public Key:</strong> {data.address}</p>
               <h4><strong>Balance:</strong> <span className="text-success">{data.balance} MyCoin</span></h4>
             </Card.Body>
           </Card>
@@ -49,7 +49,7 @@ function AddressDetail() {
           {data.transactions.length > 0 ? (
             data.transactions.map(tx => <Transaction key={tx.id} transaction={tx} />)
           ) : (
-            <p className="text-muted">No transactions found for this address.</p>
+            <p className="text-muted">No transactions found for this public key.</p>
           )}
         </>
       )}

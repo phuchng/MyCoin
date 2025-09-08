@@ -59,7 +59,7 @@ function CreateWallet() {
     const element = document.createElement("a");
     const file = new Blob([keystoreJson], {type: 'application/json'});
     element.href = URL.createObjectURL(file);
-    element.download = `mycoin-keystore-${newWallet.address.substring(0, 8)}.json`;
+    element.download = `mycoin-keystore-${newWallet.publicKey.substring(2, 10)}.json`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -99,10 +99,10 @@ function CreateWallet() {
                     <Button variant="outline-secondary" onClick={() => copyToClipboard(newWallet.mnemonic.phrase)}>Copy</Button>
                 </InputGroup>
                 
-                <Card.Text><strong>Your Address:</strong></Card.Text>
+                <Card.Text><strong>Your Public Key</strong></Card.Text>
                 <InputGroup className="mb-3">
-                    <Form.Control readOnly value={newWallet.address} />
-                    <Button variant="outline-secondary" onClick={() => copyToClipboard(newWallet.address)}>Copy</Button>
+                    <Form.Control as="textarea" rows={3} style={{ resize: 'none' }} readOnly value={newWallet.publicKey.substring(2)} />
+                    <Button variant="outline-secondary" onClick={() => copyToClipboard(newWallet.publicKey.substring(2))}>Copy</Button>
                 </InputGroup>
               </Card.Body>
             </Card>
@@ -141,10 +141,10 @@ function CreateWallet() {
                     </Alert>
                     <Button onClick={downloadKeystore} variant="success">Download Keystore File</Button>
                     <hr/>
-                    <Card.Text><strong>Your Address:</strong></Card.Text>
+                    <Card.Text><strong>Your Public Key</strong></Card.Text>
                     <InputGroup className="mb-3">
-                        <Form.Control readOnly value={newWallet.address} />
-                        <Button variant="outline-secondary" onClick={() => copyToClipboard(newWallet.address)}>Copy</Button>
+                        <Form.Control as="textarea" rows={3} style={{ resize: 'none' }} readOnly value={newWallet.publicKey.substring(2)} />
+                        <Button variant="outline-secondary" onClick={() => copyToClipboard(newWallet.publicKey.substring(2))}>Copy</Button>
                     </InputGroup>
                 </Card.Body>
              </Card>
